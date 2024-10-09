@@ -1019,8 +1019,8 @@ class ActiveLearningModel:
             print("num of points: ", self.curr_num_points)
 
         print("fitting...")
-        # self.learner.fit(self.x_al_train, self.y_al_train)
-        self.learner.fit(n_epoch=1)
+        self.learner.fit(self.x_al_train, self.y_al_train)
+        # self.learner.fit(n_epoch=1)
 
         print("fitted")
 
@@ -2297,15 +2297,17 @@ class ActiveLearningModel:
             self.committee = False
             print(type(classifier_dict[table["classifier"][0]]))
             if "sklearn" in str(type(classifier_dict[table["classifier"][0]])):
+                print("\n\n\n USING SKLEARN \n\n\n")
                 print(type(classifier_dict[table["classifier"][0]]))
 
-                learner = ActiveLearner(
+                self.learner = ActiveLearner(
                     estimator=clone(classifier_dict[table["classifier"][0]]),
                     query_strategy=qs_dict[table["query"][0]],
                     X_training=self.x_al_train,
                     y_training=self.y_al_train,
                 )
             else:
+                print("\n\n\n NOT USING SKLEARN \n\n\n")
                 is_torch = False
 
                 def classlookup(cls):
@@ -2395,6 +2397,7 @@ class ActiveLearningModel:
 
                     strategy = query_strategies.__dict__[table["query"][0]](self.reduced_tr, self.Y_pool, self.reduced_val, self.Y_val, self.idxs_lb, net, handler, args, config.settings["image_col"], config.settings["label_col"])
 
+                    self.learner = strategy
 
 
                     # learner = ActiveLearner(
@@ -2408,10 +2411,6 @@ class ActiveLearningModel:
                     # print(learner)
                 else:
                     assert False, f"The classifier f{a} does not seem to be SKLearn or Torch. No implementation found."
-
-
-            self.learner = strategy
-
 
         else:
             learners = []
@@ -2448,9 +2447,9 @@ class ActiveLearningModel:
             self.learner = Committee(learner_list=learners)
 
         
-        self.learner.fit(n_epoch=1)
+        # self.learner.fit(n_epoch=1)
 
-        # self._update_predictions()
+        self._update_predictions()
       
 
     # TODO :: Add bool to see if user wants this step
@@ -2548,12 +2547,26 @@ class ActiveLearningModel:
         df = df[df["acc"].isin(self._train_tab_colour_switch.active)]
 
         if not config.settings["image_train"]:
+            print("No image_train in settings")
             if hasattr(self, "x_al_train"):
+                print("has attr x_al_train")
+
                 x_al_train = pd.DataFrame(
                     self.x_al_train, columns=config.ml_data["x_train_with_unknowns"].columns
                 )
+            else:
+
+                x_al_train = self._empty_data()
+
+                print(x_al_train)
+
+
         else:
+            print("image_train in settings")
+
             try:
+
+                print("trying...")
                 
                 subset = self.df[self.df[config.settings["id_col"]].isin(self.reduced_tr[config.settings["id_col"]].iloc[self.idxs_lb])]
 
@@ -2576,9 +2589,12 @@ class ActiveLearningModel:
 
                 x_al_train = self._empty_data()
 
+
                 # assert False
 
         # print("hasattr queryinst: ", self.query_instance)
+
+        # print(x_al_train.shape)
 
         if hasattr(self, "query_instance"):
             try:

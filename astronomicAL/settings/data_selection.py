@@ -75,7 +75,7 @@ class DataSelection(param.Parameterized):
         self.param.load_config_select.default = load_config_options[0]
         self.param.config_file.default = config_files[0]
         self.dataset = data_files[0]
-        self.other_data_name = "cifar10"
+        self.other_data_name = None
         self.load_config_select = load_config_options[0]
         self.config_file = config_files[0]
 

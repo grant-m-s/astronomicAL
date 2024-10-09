@@ -411,9 +411,15 @@ class ActiveLearningSettings(param.Parameterized):
                 return
         else:
 
+            print("\n\n\n GENERATING FEATURES... \n\n\n")
+
+            print(selected_features)
             oper_dict = feature_generation.get_oper_dict()
+            print(self.feature_generator_selected)
+            print(oper_dict)
 
             for generator in self.feature_generator_selected:
+                print(generator)
 
                 oper = generator[0]
                 n = generator[1]
@@ -423,6 +429,8 @@ class ActiveLearningSettings(param.Parameterized):
                 )
 
                 selected_features = selected_features + generated_features
+
+                print(selected_features)
 
         remaining = []
         if self.df is not None:
@@ -452,8 +460,8 @@ class ActiveLearningSettings(param.Parameterized):
         print("Saving settings...")
 
         config.settings["default_vars"] = self.get_default_variables()
-        print(self.df[config.settings["default_vars"][0]])
-        print(self.df[config.settings["default_vars"][1]])
+        # print(self.df[config.settings["default_vars"][0]])
+        # print(self.df[config.settings["default_vars"][1]])
 
         config.settings["labels_to_train"] = self.label_selector.value
         config.settings["features_for_training"] = self.feature_selector.value
